@@ -66,6 +66,16 @@ Starten Sie das Script im Terminal mit
 ```
 Es kopiert die Windows-Partition und erstellt eine virtuelle Maschine. Sollte dabei ein Fehler auftreten, fügen Sie den angezeigten Pfad in die Datei „exclude.ini“ ein und starten das Script noch einmal.
 
+## Windows in der VM optimieren
+Eine virtuelle Maschine hat nur wenig mit der tatsächlichen Hardware im PC gemein. Sie müssen daher die Treiber für den genutzten Virtualisierer installieren. 
+
+**Qemu/KVM:** In die von uns konfigurierte VM ist die ISO-Datei „virtio-win-0.1.285.iso“ mit den nötigen Programmen bereits eingebunden und über den Windows-Explorer als CD-Laufwerk erreichbar. Starten Sie „virtio-win-gt-x64.msi“ und danach „virtio-win-guest-tools.exe“. Starten Sie Windows neu. Sie können jetzt eine höhere Bildschirmauflösung einstellen und die Zwischenablage für den Datenaustausch zwischen Windows und Linux verwenden.
+
+**Virtualbox:** Das Medium mit den Gasterweiterungen ist bereits eingehängt und Sie starten unter Windows „VboxWindowsAdditions.exe“. Nach einem Windows-Neustart steht eine höhere Bildschirmauflösung zur Verfügung und über die Zwischenablage können Sie Daten zwischen beiden Systemen austauschen.
+
+**Jede VM:** Prüfen Sie in der Einstellungen-App unter „Apps“, ob noch unnötige Software vorhanden ist. Entfernen Sie etwa Treiberpakete, die in der virtuellen Maschine ohnehin nicht genutzt werden.
+
+**Netzwerkkonfiguration:** Standardmäßig haben virtuelle Maschinen Internetzugang, aber keinen Zugriff auf Freigaben im lokalen Netzwerk. Wenn Windows 10 keine Sicherheitsupdates mehr erhält, sollten Sie den virtuellen Netzwerkadapter und damit den Internetzugang deaktivieren.
 
 ## Qemu/KVM und Virtualbox nebeneinander nutzen
 Wer beide Virtualisierungsprogramme verwenden möchte, etwa um die Funktionen auszuprobieren, kann beide installieren. Bei der gleichzeitigen Nutzung kann es jedoch zu Problemen kommen.
@@ -83,6 +93,75 @@ Starten Sie Linux neu.
 In Virtualbox lässt sich eine VM dann starten und in Qemu/KVM ebenfalls – allerdings nicht gleichzeitig. Sie können nur jeweils eins der Programme verwenden.
 
 Im Verzeichnis "Tools" finden Sie das Script "disable_KVM_enable_Vbox.sh", über das Sie das Kernel-Modul jederzeit entladen können. Das Script "enable_KVM_disable_vbox.sh" lädt das Modul bei Bedarf wieder.
+
+## Ergänzende Informationen
+Nachfolgend einge Informationen zu Qemu und Virtualbox.
+
+## Qemu/KVM installieren
+Die Infrastruktur der KVM-Virtualisierung besteht aus mehreren Programmen und Bibliotheken. Für die Installation unter Ubuntu oder Linux Mint genügt im Terminal die Zeile
+```
+sudo apt install virt-manager
+```
+Die zusätzlich erforderlichen Pakete werden automatisch installiert. Das Programm Virtual Machine Manager (VMM) aus dem Paket „virt-manager“ stellt die Benutzeroberfläche zum Erstellen und Verwalten von virtuellen Maschinen bereit. In einem deutschsprachigen Ubuntu oder Linux Mint findet man ihn unter der Bezeichnung „Virtuelle Maschinenverwaltung“.
+
+Um die KVM-Virtualisierung verwenden zu können, müssen Benutzerkonten zur Gruppe „libvirt“ gehören. Der aktuell angemeldete Benutzer wird automatisch zur Gruppe hinzugefügt. Weitere Benutzer fügen Sie mit
+```
+sudo usermod -aG libvirt [User]
+```
+hinzu. Setzen Sie den Benutzernamen für den Platzhalter „[User]“ ein.
+Starten Sie Linux neu, damit die Änderungen in der Konfiguration wirksam werden.
+
+## Qemu: Datenaustausch mit dem Hostsystem
+Die Zwischenablage verwenden Host- und Gastsystem gemeinsam. Text und Bilder lassen sich in beide Richtungen ohne besondere Konfiguration per Strg-C und Strg-V übertragen. Voraussetzung dafür ist die Installation der 
+
+Das Netzwerk der virtuellen Maschinen ist standardmäßig als NAT mit eigenem IP-Bereich konfiguriert. Der Zugriff auf das Internet ist möglich und auch auf Freigaben im lokalen Netzwerk. Der Host-PC kann eine Verbindung zur IP-Adresse des Gast-PCs aufbauen, etwa für SSH oder eine Webserver. VMs sehen sich untereinander nicht und auch über andere Rechner im lokalen Netzwerk ist keine Verbindung möglich. Wenn Sie das ändern möchten, richten Sie eine Netzwerkbrücke ein. Das funktioniert problemlos mit allen Ethernet-Adaptern, mit WLAN-Adaptern jedoch oft nicht.
+
+Falls noch nicht vorhanden installieren Sie die nötige Software mit
+```
+sudo apt install bridge-utils
+```
+und starten unter Ubuntu oder Linux Mint im Terminal
+```
+nm-connection-editor
+```
+Klicken Sie auf die „+“-Schaltfläche, wählen Sie „Bridge“ und klicken Sie auf „Erstellen“. Hinter „Name der Schnittstelle“ tragen Sie br0 ein. Klicken Sie auf „Hinzufügen“, wählen Sie „Ethernet“ und klicken Sie auf „Erstellen“. Hinter „Geräte“ wählen Sie den Ethernet-Adapter, klicken auf „Speichern“ und dann noch einmal auf „Speichern“. Entfernen Sie „Ethernet-Verbindung 1“ per Klick auf die „-“-Schaltfläche.
+
+In einem anderen Terminal starten Sie den Netzwerk-Manager neu:
+```
+sudo systemctl restart NetworkManager
+```
+Manchmal ist es auch nötig Linux neu zu starten, damit die Einstellungen wirksam werden.
+Kontrollieren Sie die Konfiguration im Terminal mit
+```
+ip a
+```
+„br0“ sollte jetzt eine IP-Adresse aus dem Bereich Ihres Router erhalten haben.
+
+Rufen Sie die Konfiguration Ihrer virtuellen Maschine auf und wählen Sie beim Netzwerkadapter hinter „Netzwerkquelle“ den Eintrag „Bridge device“. Hinter „Gerätename“ tragen Sie *br0* ein und klicken auf „Apply“. Starten Sie das System in der VM neu. Es erhält per DHCP eine IP-Adresse vom Router und ist damit von jedem Gerät im Netzwerk aus erreichbar.
+
+## Virtualbox installieren
+Die aktuelle Version von Virtualbox erhalten Sie für alle Betriebssysteme unter www.virtualbox.org/wiki/Downloads. Zu den Varianten für die unterschiedlichen Linux-Distributionen führt dort der Link "Linux distributions". Den Download installieren Sie dann nach Rechtsklick mit dem Paketmanager der Distribution. Alternativ finden Sie auf der Seite auch Informationen zum Einbinden der Paketquelle. Darüber lassen sich dann später auch Updates über den Paketmanager durchführen.
+
+Auf der allgemeinen Downloadseite erscheint auch das "Oracle VM VirtualBox Extension Pack". Dieses darf aus lizenzrechtlichen Gründen nicht mit dem freien Virtualbox ausgeliefert werden, ist aber für private Nutzung frei und kostenlos. Nach dem Download dieses Erweiterungspakets starten Sie Virtualbox und gehen im Virtualbox Manager auf "Erweiterungspakete". Klicken Sie auf die Schaltfläche "Installieren" und navigieren zum Download. Da der Dialog nur Dateien mit der Extension ".vbox-extpack" anzeigt, ist die Auswahl einfach und eindeutig. Nach einem Warnhinweis startet die Installation. Das Erweiterungspaket ist zwar optional, aber für häufige Virtualbox-Nutzung uneingeschränkt zu empfehlen.
+
+**Gruppenzuweisung:** Eine letzte Aktion vervollständigt die Installation unter Linux: Fügen Sie die Systembenutzer, die Virtualbox verwenden sollen, zur Gruppe „vboxusers“ hinzu:
+```
+sudo adduser [User] vboxusers
+```
+„[User]“ ersetzen Sie durch den Kontonamen des Benutzers. Wiederholen Sie den Befehl für alle gewünschten Konten. Melden Sie sich dann bei Linux ab und wieder an oder starten Sie das System neu. Diese vollständige Installation mit Erweiterung und Gruppenzuweisung ist für eine sporadische Nutzung von Virtualbox nicht zwingend, erspart aber eventuelle spätere Irritationen - insbesondere beim Versuch, USB-Geräte in einer VM zu nutzen. 
+
+**Gasterweiterungen in die VM installieren**: Im Unterschied zum allgemeinen Virtualbox-Erweiterungspaket werden die Gasterweiterungen in die jeweilige VM installiert. Gasterweiterungen sind optional, aber mindestens für häufiger genutzte VMs zu empfehlen. Sie enthalten Treiber für die Maus und den virtuellen Grafikadapter, verbessern damit Bildschirmauflösung, Skalierung, Mausverhalten und erlauben direkte Ordnerfreigaben zwischen Hostsystem und Gast-VM.
+
+Die Gasterweiterungen lädt Virtualbox in das virtuelle DVD-Laufwerk einer laufenden VM, wenn Sie auf das VM-Fenstermenü "Geräte -> Gasterweiterungen einlegen" klicken. Falls die Menüleiste im Vollbild oder im skalierten Anzeigemodus nicht zugänglich ist, verwenden Sie den Hotkey Host-Pos1 (also standardmäßig Strg-Rechts-Pos1). Das Installationspaket erscheint dann im DVD-Laufwerk der VM, und in einer Windows-VM genügt dann der Doppelklick auf „VBoxWindowsAdditions.exe“. Unter Linux müssen eventuell mit dem Terminal zum Pfad des DVD-Ordners navigieren und dann mit 
+```
+sudo ./VboxLinuxAdditions.run
+```
+die Installation starten.
+
+## Virtualbox: Netzwerkbrücke statt NAT
+Standardmäßig gilt für VMs wie bei allen Virtualisierern der "NAT"-Modus im Netzwerk: Dabei dient Virtualbox selbst als virtueller Router und weist der VM eine zufällige IP-Adresse zu. Damit kommt die VM ins Internet, bleibt aber im lokalen Heimnetz isoliert. Es ist der VM zwar möglich, sich über die IP-Adressen des Heimnetzes mit Samba- oder SSH-Server zu verbinden, umgekehrt ist aber keine Verbindung zur VM möglich (SSH, Samba, VNC, RDP, Apache…). 
+
+Wenn eine VM einen Dienst im Heimnetz anbieten soll, ist eine andere Einstellung erforderlich. Möglichkeiten gibt es mehrere, aber die einfachste erfordert nur einen einzigen Klick und sollte in den meisten Fällen genügen. Gehen Sie bei einer eingerichteten VM nach "Ändern" auf das "Netzwerk". Hier finden Sie unter "Netzwerk -> Angeschlossen an" eine Reihe weiterer Optionen. Mit „Netzwerkbrücke“ verbindet sich eine VM direkt mit dem Heimnetz. Die VM erhält also vom Heimrouter via DHCP eine lokale IP-Adresse genau wie ein physischer Rechner. Das macht die VM zum gleichberechtigten Mitglied des lokalen Netzes, und sie kann dann von jedem anderen Gerät erreicht werden. Die Umstellung von "NAT" zu "Netzwerkbrücke" kann im Virtualbox Manager jederzeit und auch für eine aktuell laufende VM erfolgen.
 
 
 
