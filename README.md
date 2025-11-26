@@ -163,6 +163,14 @@ Standardmäßig gilt für VMs wie bei allen Virtualisierern der "NAT"-Modus im N
 
 Wenn eine VM einen Dienst im Heimnetz anbieten soll, ist eine andere Einstellung erforderlich. Möglichkeiten gibt es mehrere, aber die einfachste erfordert nur einen einzigen Klick und sollte in den meisten Fällen genügen. Gehen Sie bei einer eingerichteten VM nach "Ändern" auf das "Netzwerk". Hier finden Sie unter "Netzwerk -> Angeschlossen an" eine Reihe weiterer Optionen. Mit „Netzwerkbrücke“ verbindet sich eine VM direkt mit dem Heimnetz. Die VM erhält also vom Heimrouter via DHCP eine lokale IP-Adresse genau wie ein physischer Rechner. Das macht die VM zum gleichberechtigten Mitglied des lokalen Netzes, und sie kann dann von jedem anderen Gerät erreicht werden. Die Umstellung von "NAT" zu "Netzwerkbrücke" kann im Virtualbox Manager jederzeit und auch für eine aktuell laufende VM erfolgen.
 
+**Gemeinsamer Ordner:** Schadsoftware in der VM kann dann allerdings ungeschützte Dateifreigaben infizieren. Die Verwendung der Alternative „Gemeinsamer Ordner“ zusammen mit NAT gilt als sicherer, weil nur genau dieser Ordner betroffen sein kann. Voraussetzung dafür sind die installierten Gasterweiterungen
 
+Gehen Sie im Fenster der laufenden VM auf „Geräte -> Gemeinsame Ordner -> Gemeinsame Ordner“. Über die „‬+‭“‬-Schaltfläche bestimmen Sie einen Ordner auf dem Host-PC für den Datenaustausch. Setzen Sie ein Häkchen vor „Automatisch einbinden“. Damit ein Nutzer auf den gemeinsamen Ordner zugreifen darf, fügen Sie ihn im Gastsystem zur Gruppe „vboxsf“ hinzu:
+```
+sudo usermod -aG vboxsf [User]
+```
+„[User]“ ersetzen Sie durch den Benutzernamen des gewünschten Benutzers. Starten Sie das Gastsystem neu. Den gemeinsamen Ordner finden Sie unter Linux im Navigationsbereich des Dateimanagers mit dem Präfix „sf_“. Unter Windows erreichen Sie den Ordner im Windows-Explorer über „‬Netzwerk‭“ ‬und‭ „‬Vboxsrv‭“.
+
+Virtualbox bietet über „Maschine -> Dateimanager“ eine weitere Methode für den Datenaustausch. Geben Sie rechts unter Benutzername und Passwort für die Anmeldung im Gastsystem ein und klicken Sie auf „Sitzung öffnen“. Die Dateisysteme von Host- und Gast-PC werden nebeneinander angezeigt, über die Schaltflächen in der Mitte lassen sich markierte Elemente übertragen.
 
 
