@@ -11,9 +11,9 @@ sudo apt install cpu-checker
 kvm-ok
 ```
 ## Vorüberlegungen und Vorbereitungen
-Die Script-Dateien zu diesem Artikel nehmen Ihnen einen Teil der Arbeit unter Linux ab. Laden Sie über über https://m6u.de/P2VWIN unter „Releases“ die Datei „Windows-VM.tar.gz“ herunter, die Sie in den Ordner „~/Windows-VM“ entpacken. Wenn Sie Qemu/KVM verwenden möchten, benötigen Sie eine ISO-Datei mit Windows-Treibern. Laden Sie die Datei „virtio-win-0.1.285.iso“ über https://m6u.de/VIRTWIN herunter. Speichern Sie die Datei im Ordner „~/Windows-VM/drivers“.
+Die Script-Dateien zu diesem Artikel nehmen Ihnen einen Teil der Arbeit unter Linux ab. Laden Sie über über https://m6u.de/P2VWIN unter „Releases“ die Datei „Windows-VM.tar.gz“ herunter, die Sie in den Ordner „/home/[user]/Windows-VM“ entpacken. Wenn Sie Qemu/KVM verwenden möchten, benötigen Sie eine ISO-Datei mit Windows-Treibern. Laden Sie die Datei „virtio-win-0.1.285.iso“ über https://m6u.de/VIRTWIN herunter. Speichern Sie die Datei im Ordner „/home/[user]/Windows-VM/drivers“.
 
-**Festplattenspeicher für Qemu/KVM:** Der Virtualisierer benötigt Lese- und Schreibzugriff in den Ordnern für virtuelle Maschinen und ISO-Dateien. Abhängig von der Systemkonfiguration ist der verwendeten Gruppe „libvirt-qemu“ der Zugriff auf Ihr Home-Verzeichnis oder auf unter „/media/[User]“ eingehängte USB-Laufwerke nicht erlaubt. Es ist am einfachsten, den Ordner „~/Windows-VM“ in das Hauptverzeichnis „/“ zu kopieren und die nötigen Rechte zu vergeben. Starten Sie dafür 
+**Festplattenspeicher für Qemu/KVM:** Der Virtualisierer benötigt Lese- und Schreibzugriff in den Ordnern für virtuelle Maschinen und ISO-Dateien. Abhängig von der Systemkonfiguration ist der verwendeten Gruppe „libvirt-qemu“ der Zugriff auf Ihr Home-Verzeichnis oder auf unter „/media/[User]“ eingehängte USB-Laufwerke nicht erlaubt. Es ist am einfachsten, den Ordner „/home/[user]/Windows-VM“ in das Hauptverzeichnis „/“ zu kopieren und die nötigen Rechte zu vergeben. Starten Sie dafür 
 ```
 ~/Windows-VM/Tools/copy_to_root.sh
 ```
