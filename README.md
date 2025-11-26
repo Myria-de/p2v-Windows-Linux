@@ -95,7 +95,7 @@ In Virtualbox lässt sich eine VM dann starten und in Qemu/KVM ebenfalls – all
 Im Verzeichnis "Tools" finden Sie das Script "disable_KVM_enable_Vbox.sh", über das Sie das Kernel-Modul jederzeit entladen können. Das Script "enable_KVM_disable_vbox.sh" lädt das Modul bei Bedarf wieder.
 
 ## Ergänzende Informationen
-Nachfolgend einge Informationen zu Qemu und Virtualbox.
+Nachfolgend einige Informationen zu Qemu und Virtualbox.
 
 ## Qemu/KVM installieren
 Die Infrastruktur der KVM-Virtualisierung besteht aus mehreren Programmen und Bibliotheken. Für die Installation unter Ubuntu oder Linux Mint genügt im Terminal die Zeile
